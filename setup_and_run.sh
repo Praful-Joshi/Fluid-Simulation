@@ -27,7 +27,7 @@ install_dependencies() {
 if [ ! -d "$PROJECT_DIR" ]; then
     echo "Project directory not found. Cloning repository..."
     # If not, clone the project and install dependencies
-    git clone https://github.com/yourusername/yourfluidproject.git $PROJECT_DIR
+    git clone https://github.com/Praful-Joshi/Fluid-Simulation.git $PROJECT_DIR
     install_dependencies
 else
     echo "Project directory exists. Skipping dependency installation."
