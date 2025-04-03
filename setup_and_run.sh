@@ -6,21 +6,9 @@ PROJECT_DIR=~/fluid_simulation
 
 # Function to install dependencies (only run the first time)
 install_dependencies() {
-    echo "Updating system packages..."
-    sudo apt update && sudo apt upgrade -y
-
     echo "Installing required dependencies..."
     sudo apt install -y build-essential cmake git freeglut3-dev \
-        libglew-dev libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev \
-        nvidia-cuda-toolkit nvidia-driver-535
-
-    # Verify CUDA installation
-    nvcc --version
-
-    # Set CUDA environment variables
-    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-    source ~/.bashrc
+        libglew-dev libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
 }
 
 # Check if the project directory exists
