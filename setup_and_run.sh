@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# -------- Config --------
-REPO_URL="https://github.com/Praful-Joshi/Fluid-Simulation.git"
-PROJECT_DIR="$HOME/your-repo"
-EXECUTABLE_NAME="fluid_sim"  # or whatever you name your binary
+set -e
 
-# -------- Update & Install Dependencies --------
+# ---------------- CONFIG ----------------
+REPO_URL="https://github.com/Praful-Joshi/Fluid-Simulation.git"
+CLONE_DIR="$HOME/cuda-opengl-test"
+EXECUTABLE_NAME="cuda_opengl_test"
+# ---------------------------------------
+
+echo "Installing dependencies..."
 sudo apt update && sudo apt install -y \
     git \
     build-essential \
@@ -13,27 +16,26 @@ sudo apt update && sudo apt install -y \
     libgl1-mesa-dev \
     libglu1-mesa-dev \
     freeglut3-dev \
+    libglew-dev \
     libx11-dev \
     libxi-dev \
-    libxmu-dev
+    libxmu-dev \
+    libglfw3-dev
 
-# -------- Clone or Pull Repo --------
-if [ -d "$PROJECT_DIR" ]; then
-    echo "Repo already exists. Pulling latest changes..."
-    cd "$PROJECT_DIR"
+echo "Cloning or updating repo..."
+if [ -d "$CLONE_DIR" ]; then
+    cd "$CLONE_DIR"
     git pull
 else
-    echo "Cloning repository..."
-    git clone "$REPO_URL" "$PROJECT_DIR"
-    cd "$PROJECT_DIR"
+    git clone "$REPO_URL" "$CLONE_DIR"
+    cd "$CLONE_DIR"
 fi
 
-# -------- Build the Project --------
+echo "Building the project..."
 mkdir -p build
 cd build
 cmake ..
 make -j$(nproc)
 
-# -------- Run the Executable --------
 echo "Running $EXECUTABLE_NAME..."
 ./$EXECUTABLE_NAME
