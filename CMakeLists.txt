@@ -1,22 +1,21 @@
 cmake_minimum_required(VERSION 3.10)
-project(FluidSimulation LANGUAGES CUDA CXX)
+project(cuda_opengl_test LANGUAGES C CXX CUDA)
 
-# Enable CUDA
-enable_language(CUDA)
-
-# Set C++ Standard
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 11)
 
-# Find OpenGL and GLUT
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
-# Add the executable
-add_executable(fluid_simulation simulation.cu)
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+include_directories(/usr/include /usr/local/include)
 
-# Link OpenGL, GLUT, and CUDA
-target_link_libraries(fluid_simulation 
-    OpenGL::GL 
-    GLUT::GLUT 
+add_executable(cuda_opengl_test src/main.cu)
+target_link_libraries(cuda_opengl_test
+    ${OPENGL_LIBRARIES}
+    ${GLUT_LIBRARIES}
+    GL
+    GLEW
     cuda
+    cudart
 )
