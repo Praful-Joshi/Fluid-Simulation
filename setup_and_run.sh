@@ -9,43 +9,46 @@ EXECUTABLE_NAME="main"
 # ---------------------------------------
 
 echo "Installing dependencies..."
-sudo apt-get update
-sudo apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    libgl1-mesa-dev \
-    libglu1-mesa-dev \
-    freeglut3-dev \
-    libx11-dev \
-    libxi-dev \
-    libxmu-dev \
-    libglew-dev \
-    libglfw3-dev \
-    software-properties-common \
-    wget
+# Update package lists
+sudo apt update
 
-# ---------------- INSTALL CUDA (Repo Method) ----------------
-echo "Installing CUDA via NVIDIA network repo..."
+# Install build essentials and cmake
+sudo apt install -y build-essential cmake
 
-# Remove any previous installs
-sudo apt-get remove --purge -y "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*" || true
+# Install OpenGL development libraries
+sudo apt install -y libgl1-mesa-dev libglu1-mesa-dev
 
-# Add NVIDIA CUDA repo
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
-sudo dpkg -i cuda-keyring_1.1-1_all.deb
-sudo apt-get update
-sudo apt-get -y install cuda
+# Install FreeGLUT (OpenGL utility toolkit)
+sudo apt install -y freeglut3-dev
 
-# Set up CUDA paths for current session
-export PATH=/usr/local/cuda/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+# Install GLEW (OpenGL Extension Wrangler Library)
+sudo apt install -y libglew-dev
 
-# Optional: persist to .bashrc
-if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
-    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-fi
+# Install CUDA (ensure you have the correct NVIDIA driver and CUDA version installed for your GPU)
+# The following command installs the CUDA toolkit if it’s not installed. You may want to install the version compatible with your GPU.
+# Uncomment the following line if CUDA is not installed.
+sudo apt install -y nvidia-cuda-toolkit
+
+# Install the CUDA GL interop library (for CUDA/OpenGL interoperability)
+sudo apt install -y libcuda-dev
+
+# Install additional NVIDIA libraries (if required for CUDA interop)
+sudo apt install -y nvidia-opencl-dev
+
+# Ensure the NVIDIA driver is installed (if using GPU)
+# sudo apt install -y nvidia-driver-XXX   # Replace XXX with the version number compatible with your GPU
+
+# Install Git (to pull code from a repository, if needed)
+sudo apt install -y git
+
+# Install libX11-dev (dependency for GLUT/FreeGLUT)
+sudo apt install -y libx11-dev
+
+# Clean up
+sudo apt autoremove -y
+
+# Confirm installation
+echo "Dependencies installed successfully!"
 
 # ---------------- CLONE & BUILD ----------------
 if [ ! -d "$CLONE_DIR" ]; then
