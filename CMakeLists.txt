@@ -1,21 +1,29 @@
-cmake_minimum_required(VERSION 3.10)
-project(cuda_opengl_test LANGUAGES C CXX CUDA)
+cmake_minimum_required(VERSION 3.18)
+project(OpenGLCudaTest LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CUDA_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
 
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
-include_directories(/usr/include /usr/local/include)
+include_directories(
+    ${OPENGL_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
+    ${GLFW_INCLUDE_DIRS}
+)
 
-add_executable(cuda_opengl_test src/main.cu)
-target_link_libraries(cuda_opengl_test
+add_executable(OpenGLCudaTest
+    main.cpp
+    cuda_kernel.cu
+)
+
+target_link_libraries(OpenGLCudaTest
     ${OPENGL_LIBRARIES}
-    ${GLUT_LIBRARIES}
-    GL
-    GLEW
+    ${GLEW_LIBRARIES}
+    ${GLFW_LIBRARIES}
     cuda
     cudart
 )
