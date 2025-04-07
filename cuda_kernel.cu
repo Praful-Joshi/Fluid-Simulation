@@ -9,8 +9,7 @@ struct Particle {
 __global__ void updateParticlesKernel(Particle* particles, int count, float time) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < count) {
-        particles[i].x += 0.01f * sinf(time + i * 0.0001f);
-        particles[i].y += 0.01f * cosf(time + i * 0.0001f);
+        particles[i].y = 0.5f * sinf(time + i * 0.0001f);
     }
 }
 

@@ -5,7 +5,8 @@
 #include <chrono>
 #include <cmath>
 
-extern "C" void updateParticlesOnGPU(Particle* particles, int count, float time);
+extern "C" void updateParticlesOnGPU(struct Particle* hostParticles, int count, float time);
+
 
 struct Particle {
     float x, y;
@@ -15,7 +16,6 @@ const int NUM_PARTICLES = 100000;
 GLuint vbo;
 GLuint vao;
 std::vector<Particle> particles;
-
 
 void initParticles() {
     particles.resize(NUM_PARTICLES);
@@ -66,9 +66,11 @@ int main() {
 
     initParticles();
     setupVBO();
+
     int frameCount = 0;
     float totalFrameTime = 0.0f;
     const int SAMPLE_INTERVAL = 120;
+
     while (!glfwWindowShouldClose(window)) {
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -86,12 +88,13 @@ int main() {
 
         auto end = std::chrono::high_resolution_clock::now();
         float ms = std::chrono::duration<float, std::milli>(end - start).count();
+        
         totalFrameTime += ms;
         frameCount++;
-
+    
         if (frameCount == SAMPLE_INTERVAL) {
             float avg = totalFrameTime / SAMPLE_INTERVAL;
-            std::cout << "[CUDA MODE - interop] Avg frame time over " << SAMPLE_INTERVAL << " frames: " << avg << "           ms\n";
+            std::cout << "[CPU MODE] Avg frame time over " << SAMPLE_INTERVAL << " frames: " << avg << " ms\n";
             frameCount = 0;
             totalFrameTime = 0.0f;
         }
