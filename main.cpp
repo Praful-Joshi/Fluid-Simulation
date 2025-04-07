@@ -81,8 +81,8 @@ int main() {
         //updateParticlesOnGPU(particles.data(), NUM_PARTICLES, time);
         updateParticlesCUDAInterop(NUM_PARTICLES, time);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle), particles.data());
+        // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        // glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle), particles.data());
 
         renderParticles();
 
