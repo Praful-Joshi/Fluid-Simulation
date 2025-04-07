@@ -5,9 +5,7 @@
 #include <chrono>
 #include <cmath>
 
-extern "C" void registerVBOWithCUDA(unsigned int vbo);
-extern "C" void updateParticlesCUDAInterop(int count, float time);
-
+extern "C" void updateParticlesOnGPU(Particle* particles, int count, float time);
 
 struct Particle {
     float x, y;
@@ -40,8 +38,6 @@ void setupVBO() {
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
-    
-    registerVBOWithCUDA(vbo);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)0);
     glEnableVertexAttribArray(0);
@@ -78,11 +74,10 @@ int main() {
 
         float time = glfwGetTime();
         //updateParticlesCPU(time);
-        //updateParticlesOnGPU(particles.data(), NUM_PARTICLES, time);
-        updateParticlesCUDAInterop(NUM_PARTICLES, time);
+        updateParticlesOnGPU(particles.data(), NUM_PARTICLES, time);
 
-        // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        // glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle), particles.data());
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle), particles.data());
 
         renderParticles();
 
