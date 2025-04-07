@@ -14,7 +14,7 @@ __global__ void updateParticlesKernel(Particle* particles, int count, float time
     }
 }
 
-void updateParticlesOnGPU(Particle* hostParticles, int count, float time) {
+extern "C" void updateParticlesOnGPU(Particle* hostParticles, int count, float time) {
     Particle* devParticles;
     size_t size = count * sizeof(Particle);
 
