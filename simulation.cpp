@@ -9,7 +9,7 @@ const int WIDTH = 800;
 const int HEIGHT = 800;
 const int GRID_SIZE = 256;
 
-extern void launch_cuda_kernel(float* dev_field, int size);
+extern "C" void launch_cuda_kernel(float* dev_field, int size);
 
 float* field = nullptr;
 float* dev_field = nullptr;
