@@ -1,106 +1,64 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <vector>
 #include <iostream>
-#include <chrono>
-#include <cmath>
+#include <vector>
+#include <cstdlib>
+#include <cuda_runtime.h>
 
-extern "C" void updateParticlesOnGPU(struct Particle* hostParticles, int count, float time);
+const int WIDTH = 800;
+const int HEIGHT = 800;
+const int GRID_SIZE = 256;
 
+extern void launch_cuda_kernel(float* dev_field, int size);
 
-struct Particle {
-    float x, y;
-};
+float* field = nullptr;
+float* dev_field = nullptr;
 
-const int NUM_PARTICLES = 100000;
-GLuint vbo;
-GLuint vao;
-std::vector<Particle> particles;
-
-void initParticles() {
-    particles.resize(NUM_PARTICLES);
-    for (int i = 0; i < NUM_PARTICLES; ++i) {
-        particles[i].x = (float(rand()) / RAND_MAX) * 2.0f - 1.0f;
-        particles[i].y = (float(rand()) / RAND_MAX) * 2.0f - 1.0f;
+void drawField() {
+    glBegin(GL_POINTS);
+    for (int i = 0; i < GRID_SIZE * GRID_SIZE; ++i) {
+        float intensity = field[i];
+        glColor3f(intensity, intensity, intensity);
+        int x = i % GRID_SIZE;
+        int y = i / GRID_SIZE;
+        glVertex2f(x / float(GRID_SIZE), y / float(GRID_SIZE));
     }
+    glEnd();
 }
 
-void updateParticlesCPU(float time) {
-    for (int i = 0; i < NUM_PARTICLES; ++i) {
-        particles[i].y = 0.5f * std::sin(time + i * 0.0001f);
+void checkCUDA(cudaError_t result) {
+    if (result != cudaSuccess) {
+        std::cerr << "CUDA Runtime Error: " << cudaGetErrorString(result) << std::endl;
+        exit(-1);
     }
-}
-
-void setupVBO() {
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, NUM_PARTICLES * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)0);
-    glEnableVertexAttribArray(0);
-}
-
-void renderParticles() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
 }
 
 int main() {
-    if (!glfwInit()) {
-        std::cerr << "Failed to init GLFW\n";
-        return -1;
-    }
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "CPU Renderer", nullptr, nullptr);
-    if (!window) {
-        std::cerr << "Failed to create window\n";
-        glfwTerminate();
-        return -1;
-    }
+    if (!glfwInit()) return -1;
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "CUDA + OpenGL Fluid Sim", NULL, NULL);
+    if (!window) return -1;
     glfwMakeContextCurrent(window);
-
     glewInit();
 
-    initParticles();
-    setupVBO();
+    field = new float[GRID_SIZE * GRID_SIZE];
+    std::fill(field, field + GRID_SIZE * GRID_SIZE, 0.0f);
 
-    int frameCount = 0;
-    float totalFrameTime = 0.0f;
-    const int SAMPLE_INTERVAL = 120;
+    checkCUDA(cudaMalloc(&dev_field, GRID_SIZE * GRID_SIZE * sizeof(float)));
+    checkCUDA(cudaMemcpy(dev_field, field, GRID_SIZE * GRID_SIZE * sizeof(float), cudaMemcpyHostToDevice));
 
     while (!glfwWindowShouldClose(window)) {
-        auto start = std::chrono::high_resolution_clock::now();
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        float time = glfwGetTime();
-        //updateParticlesCPU(time);
-        updateParticlesOnGPU(particles.data(), NUM_PARTICLES, time);
+        launch_cuda_kernel(dev_field, GRID_SIZE);
+        checkCUDA(cudaMemcpy(field, dev_field, GRID_SIZE * GRID_SIZE * sizeof(float), cudaMemcpyDeviceToHost));
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, NUM_PARTICLES * sizeof(Particle), particles.data());
-
-        renderParticles();
-
+        drawField();
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-        auto end = std::chrono::high_resolution_clock::now();
-        float ms = std::chrono::duration<float, std::milli>(end - start).count();
-        
-        totalFrameTime += ms;
-        frameCount++;
-    
-        if (frameCount == SAMPLE_INTERVAL) {
-            float avg = totalFrameTime / SAMPLE_INTERVAL;
-            std::cout << "[CPU MODE] Avg frame time over " << SAMPLE_INTERVAL << " frames: " << avg << " ms\n";
-            frameCount = 0;
-            totalFrameTime = 0.0f;
-        }
     }
 
-    glfwDestroyWindow(window);
+    delete[] field;
+    cudaFree(dev_field);
     glfwTerminate();
     return 0;
 }

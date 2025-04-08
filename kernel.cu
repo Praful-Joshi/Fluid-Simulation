@@ -1,29 +1,23 @@
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <math.h>
 
-struct Particle {
-    float x, y;
-};
+__global__ void fluidKernel(float* field, int size) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-__global__ void updateParticlesKernel(Particle* particles, int count, float time) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < count) {
-        particles[i].y = 0.5f * sinf(time + i * 0.0001f);
-    }
+    if (x >= size || y >= size) return;
+
+    int idx = y * size + x;
+
+    // Create a simple wave simulation
+    float value = sinf(x * 0.05f + clock() * 0.0001f) * cosf(y * 0.05f + clock() * 0.0001f);
+    field[idx] = 0.5f + 0.5f * value;
 }
 
-extern "C" void updateParticlesOnGPU(Particle* hostParticles, int count, float time) {
-    Particle* devParticles;
-    size_t size = count * sizeof(Particle);
+extern "C" void launch_cuda_kernel(float* dev_field, int size) {
+    dim3 threads(16, 16);
+    dim3 blocks((size + threads.x - 1) / threads.x,
+                (size + threads.y - 1) / threads.y);
 
-    cudaMalloc(&devParticles, size);
-    cudaMemcpy(devParticles, hostParticles, size, cudaMemcpyHostToDevice);
-
-    int threads = 256;
-    int blocks = (count + threads - 1) / threads;
-    updateParticlesKernel<<<blocks, threads>>>(devParticles, count, time);
-
-    cudaMemcpy(hostParticles, devParticles, size, cudaMemcpyDeviceToHost);
-    cudaFree(devParticles);
+    fluidKernel<<<blocks, threads>>>(dev_field, size);
+    cudaDeviceSynchronize();
 }
