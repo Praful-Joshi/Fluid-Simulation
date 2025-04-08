@@ -16,8 +16,8 @@ include_directories(
 )
 
 add_executable(FluidSim
-    main.cpp
-    cuda_kernel.cu
+    simulation.cpp
+    kernel.cu
 )
 
 target_link_libraries(FluidSim
