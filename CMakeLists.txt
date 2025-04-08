@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(OpenGLCudaTest LANGUAGES CXX CUDA)
+project(FluidSim LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,12 +15,12 @@ include_directories(
     ${GLFW_INCLUDE_DIRS}
 )
 
-add_executable(OpenGLCudaTest
+add_executable(FluidSim
     main.cpp
     cuda_kernel.cu
 )
 
-target_link_libraries(OpenGLCudaTest
+target_link_libraries(FluidSim
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${GLFW_LIBRARIES}
