@@ -26,7 +26,7 @@ using avx256 = __m256;
 // SIMD - Free Function Utilties -
 
 // SIMD - 8 Float (m256) Addition Together. 
-__forceinline float simd256_hAdd(__m256 a) 
+float simd256_hAdd(__m256 a) 
 {
 	__m256 t1 = _mm256_hadd_ps(a, a);
 	__m256 t2 = _mm256_hadd_ps(t1, t1);
@@ -36,7 +36,7 @@ __forceinline float simd256_hAdd(__m256 a)
 }
 
 // SIMD - 4 Float (m128) Addition Together. 
-__forceinline float simd128_hAdd(__m128 a)
+float simd128_hAdd(__m128 a)
 {
 	__m128 t1 = _mm_hadd_ps(a, a);
 	__m128 t2 = _mm_hadd_ps(t1, t1);
@@ -196,12 +196,12 @@ protected:
 	void sphere_rad_test();
 
 	// STATIC UTILITY \\ 
-	__forceinline static float fitRange(float val, float a_min, float a_max, float b_min, float b_max);
-	__forceinline static float clamp(float val, float min, float max);
-	__forceinline static float lerp(float val_0, float val_1, float bias);
-	__forceinline static float cosinterp(float val_0, float val_1, float bias);
-	__forceinline static vec3<float> vec_clamp(const vec3<float> &v_min, const vec3<float> &v_max, const vec3<float> v);
-	__forceinline static vec3<float> vec_lerp(const vec3<float> &v_a, const vec3<float> &v_b, float bias);
+	static float fitRange(float val, float a_min, float a_max, float b_min, float b_max);
+	static float clamp(float val, float min, float max);
+	static float lerp(float val_0, float val_1, float bias);
+	static float cosinterp(float val_0, float val_1, float bias);
+	static vec3<float> vec_clamp(const vec3<float> &v_min, const vec3<float> &v_max, const vec3<float> v);
+	static vec3<float> vec_lerp(const vec3<float> &v_a, const vec3<float> &v_b, float bias);
 
 
 	// Delete Temp Grids

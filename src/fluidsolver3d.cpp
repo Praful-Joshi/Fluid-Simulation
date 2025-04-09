@@ -826,9 +826,9 @@ void fluidsolver_3::vorticty_confine()
 			{
 				vec3<float> curl_v = curl->getdata(i, j, k);
 				// Curl Magnitude - Gradient (Vorticity Direction)
-				//float xx_g = (std::fabsf(curl_mag->getdata(i + 1, j, k)) - std::fabsf(curl_mag->getdata(i - 1, j, k))) / (2.0f * h);
-				//float yy_g = (std::fabsf(curl_mag->getdata(i, j + 1, k)) - std::fabsf(curl_mag->getdata(i, j - 1, k))) / (2.0f * h);
-				//float zz_g = (std::fabsf(curl_mag->getdata(i, j, k + 1)) - std::fabsf(curl_mag->getdata(i, j, k - 1))) / (2.0f * h);
+				//float xx_g = (std::fabs(curl_mag->getdata(i + 1, j, k)) - std::fabs(curl_mag->getdata(i - 1, j, k))) / (2.0f * h);
+				//float yy_g = (std::fabs(curl_mag->getdata(i, j + 1, k)) - std::fabs(curl_mag->getdata(i, j - 1, k))) / (2.0f * h);
+				//float zz_g = (std::fabs(curl_mag->getdata(i, j, k + 1)) - std::fabs(curl_mag->getdata(i, j, k - 1))) / (2.0f * h);
 				float xx_g = (curl_mag->getdata(i + 1, j, k) - curl_mag->getdata(i - 1, j, k)) / (2.0f * h);
 				float yy_g = (curl_mag->getdata(i, j + 1, k) - curl_mag->getdata(i, j - 1, k)) / (2.0f * h);
 				float zz_g = (curl_mag->getdata(i, j, k + 1) - curl_mag->getdata(i, j, k - 1)) / (2.0f * h);
@@ -955,7 +955,7 @@ void fluidsolver_3::project(int iter)
 					if (l == iter - 1)
 					{
 						// Check Error Value of Resulting Pressure Solve Convergence (b-Ax) wip -
-						error += std::fabsf(divergence->getdata(i, j, k)) - std::fabsf(pressure->getdata(i, j, k));
+						error += std::fabs(divergence->getdata(i, j, k)) - std::fabs(pressure->getdata(i, j, k));
 					}
 				}
 			}
@@ -974,8 +974,8 @@ void fluidsolver_3::project(int iter)
 		if (l == iter - 1)
 		{
 			// Average Total Error (Over num of Cells) and Print. 
-			total_error = std::fabsf(error / (float(pow(N_dim, 2))));
-			std::cout << "DBG::PRESSURE SOLVER ERROR = " << std::scientific << std::fabsf(total_error) << "\n";
+			total_error = std::fabs(error / (float(pow(N_dim, 2))));
+			std::cout << "DBG::PRESSURE SOLVER ERROR = " << std::scientific << std::fabs(total_error) << "\n";
 		}
 
 	}
