@@ -17,6 +17,8 @@ include_directories(
     ./include
 )
 
+add_compile_options(-mavx)
+
 add_executable(FluidSim
     src/fluidobj3d.cpp
     src/fluidsolver3d.cpp

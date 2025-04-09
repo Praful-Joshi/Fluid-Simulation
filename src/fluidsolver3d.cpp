@@ -1465,35 +1465,6 @@ void fluidsolver_3::updt_mousevel()
 	std::cout << std::fixed << "DEBUG::Mouse Velocity = [" << mouse_vel.x << "," << mouse_vel.y << "] \n";
 }
 
-// Dissipate Grid Quanities By Multiplier - 
-void fluidsolver_3::dissipate(grid3_scalar<float> *grid, float disp_mult, float dt)
-{
-	disp_mult = clamp(disp_mult, 0.0f, 1.0f); 
-
-	#pragma omp parallel for
-	for (int i = 0; i <= total_size; i++)
-	{
-		// Don't Mult By dt for now. 
-		float cur_scl = grid->getdata(i);
-		cur_scl *= disp_mult;
-		grid->setdata(cur_scl, i);
-	}
-
-}
-
-void fluidsolver_3::dissipate(grid3_vector<vec3<float>> *grid, float disp_mult, float dt)
-{
-	disp_mult = std::clamp(disp_mult, 0.0f, 1.0f);
-	#pragma omp parallel for
-	for (int i = 1; i <= N_dim; i++)
-	{
-		// Don't Mult By dt for now. 
-		vec3<float> cur_vel = grid->getdata(i);
-		cur_vel *= disp_mult;
-		grid->setdata(cur_vel, i);
-	}
-}
-
 void fluidsolver_3::add_velocity(const vec3<float> &vel)
 {
 	#pragma omp for
