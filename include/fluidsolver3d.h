@@ -237,11 +237,6 @@ private:
 	// Render Members - 
 	renderobject_3D_OGL *render_obj; // HC OGL.
 	GLFWwindow *winptr; 
-
-	fitRange(float val, float a_min, float a_max, float b_min, float b_max)
-	{
-		return b_min + (val - a_min)*(b_max - b_min) / (a_max - a_min);
-	}
 };
 
 // INLINE (__forceinline) fluidsolver_3 Utility Member Functions - 
@@ -286,35 +281,6 @@ vec3<float> fluidsolver_3::vec_lerp(const vec3<float> &v_a, const vec3<float> &v
 	float yy = (1.0f - bias) * v_a.y + bias * v_b.y;
 	float zz = (1.0f - bias) * v_a.z + bias * v_b.z;
 	return vec3<float>(xx, yy, zz);
-}
-
-// Dissipate Grid Quanities By Multiplier - 
-void fluidsolver_3::dissipate(grid3_scalar<float> *grid, float disp_mult, float dt)
-{
-	disp_mult = clamp(disp_mult, 0.0f, 1.0f); 
-
-	#pragma omp parallel for
-	for (int i = 0; i <= total_size; i++)
-	{
-		// Don't Mult By dt for now. 
-		float cur_scl = grid->getdata(i);
-		cur_scl *= disp_mult;
-		grid->setdata(cur_scl, i);
-	}
-
-}
-
-void fluidsolver_3::dissipate(grid3_vector<vec3<float>> *grid, float disp_mult, float dt)
-{
-	disp_mult = std::clamp(disp_mult, 0.0f, 1.0f);
-	#pragma omp parallel for
-	for (int i = 1; i <= N_dim; i++)
-	{
-		// Don't Mult By dt for now. 
-		vec3<float> cur_vel = grid->getdata(i);
-		cur_vel *= disp_mult;
-		grid->setdata(cur_vel, i);
-	}
 }
 
 #endif
