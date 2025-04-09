@@ -10,16 +10,19 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 
 include_directories(
-    ${OPENGL_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}/include
     ${GLEW_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}
 )
 
 add_executable(FluidSim
-    simulation.cpp
-    kernel.cu
-    input.cpp
+    src/fluidobj3d.cpp
+    src/fluidsolver3d.cpp
+    src/grids3d.cpp
+    src/main.cpp
+    src/rendercontext3d.cpp
+    src/renderobj3d.cpp 
 )
 
 target_link_libraries(FluidSim
