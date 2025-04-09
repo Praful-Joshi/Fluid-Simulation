@@ -45,8 +45,8 @@ public:
 	inline vec2& operator/= (const vec2 &b);
 	inline vec2& operator*= (T scalar);
 
-	static inline float degtoRad(float deg);
-	static inline float radtoDeg(float rad);
+	static float degtoRad(float deg);
+	static float radtoDeg(float rad);
 
 	T x, y;
 };
@@ -194,14 +194,14 @@ vec2<T>& vec2<T>::operator/=(const vec2 &b)
 
 // Degrees to Radians
 template <class T>
-static inline float vec2<T>::degtoRad(float deg)
+float vec2<T>::degtoRad(float deg)
 {
 	return (float)deg * (PI / 180.0f);
 }
 
 // Radians to Degrees 
 template <class T>
-static inline float vec2<T>::radtoDeg(float rad)
+float vec2<T>::radtoDeg(float rad)
 {
 	return (float)rad * (180.0f / PI);
 }
