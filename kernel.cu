@@ -1,23 +1,15 @@
-#include <cuda_runtime.h>
+#include "simulation.hpp"
 
-__global__ void fluidKernel(float* field, int size) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-    if (x >= size || y >= size) return;
-
-    int idx = y * size + x;
-
-    // Create a simple wave simulation
-    float value = sinf(x * 0.05f + clock() * 0.0001f) * cosf(y * 0.05f + clock() * 0.0001f);
-    field[idx] = 0.5f + 0.5f * value;
+__global__ void add_source(float* x, float* s, float dt, int size) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= size) return;
+    x[i] += dt * s[i];
 }
 
-extern "C" void launch_cuda_kernel(float* dev_field, int size) {
-    dim3 threads(16, 16);
-    dim3 blocks((size + threads.x - 1) / threads.x,
-                (size + threads.y - 1) / threads.y);
-
-    fluidKernel<<<blocks, threads>>>(dev_field, size);
+extern "C" void add_source_cuda(float* x, float* s, float dt, int N) {
+    int size = N * N;
+    int threads = 256;
+    int blocks = (size + threads - 1) / threads;
+    add_source<<<blocks, threads>>>(x, s, dt, size);
     cudaDeviceSynchronize();
 }

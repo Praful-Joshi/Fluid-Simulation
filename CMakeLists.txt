@@ -13,11 +13,13 @@ include_directories(
     ${OPENGL_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}
 )
 
 add_executable(FluidSim
     simulation.cpp
     kernel.cu
+    input.cpp
 )
 
 target_link_libraries(FluidSim

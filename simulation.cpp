@@ -1,30 +1,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cuda_runtime.h>
 #include <iostream>
 #include <vector>
-#include <cstdlib>
-#include <cuda_runtime.h>
 
-const int WIDTH = 800;
-const int HEIGHT = 800;
-const int GRID_SIZE = 256;
+#include "simulation.hpp"
+#include "input.hpp"
 
-extern "C" void launch_cuda_kernel(float* dev_field, int size);
+const int WIN_WIDTH = 800;
+const int WIN_HEIGHT = 800;
+const int N = 128;
 
-float* field = nullptr;
-float* dev_field = nullptr;
-
-void drawField() {
-    glBegin(GL_POINTS);
-    for (int i = 0; i < GRID_SIZE * GRID_SIZE; ++i) {
-        float intensity = field[i];
-        glColor3f(intensity, intensity, intensity);
-        int x = i % GRID_SIZE;
-        int y = i / GRID_SIZE;
-        glVertex2f(x / float(GRID_SIZE), y / float(GRID_SIZE));
-    }
-    glEnd();
-}
+float *density, *source;
+float *dev_density, *dev_source;
 
 void checkCUDA(cudaError_t result) {
     if (result != cudaSuccess) {
@@ -33,32 +21,59 @@ void checkCUDA(cudaError_t result) {
     }
 }
 
+void draw_density() {
+    glBegin(GL_POINTS);
+    for (int j = 0; j < N; ++j) {
+        for (int i = 0; i < N; ++i) {
+            int index = j * N + i;
+            float d = density[index];
+            glColor3f(d, d, d);
+            glVertex2f(i / float(N), j / float(N));
+        }
+    }
+    glEnd();
+}
+
 int main() {
     if (!glfwInit()) return -1;
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "CUDA + OpenGL Fluid Sim", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "CUDA Fluid Sim", NULL, NULL);
     if (!window) return -1;
     glfwMakeContextCurrent(window);
     glewInit();
 
-    field = new float[GRID_SIZE * GRID_SIZE];
-    std::fill(field, field + GRID_SIZE * GRID_SIZE, 0.0f);
+    setup_input_callbacks(window);
 
-    checkCUDA(cudaMalloc(&dev_field, GRID_SIZE * GRID_SIZE * sizeof(float)));
-    checkCUDA(cudaMemcpy(dev_field, field, GRID_SIZE * GRID_SIZE * sizeof(float), cudaMemcpyHostToDevice));
+    density = new float[N * N]{};
+    source = new float[N * N]{};
+    checkCUDA(cudaMalloc(&dev_density, N * N * sizeof(float)));
+    checkCUDA(cudaMalloc(&dev_source, N * N * sizeof(float)));
 
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        launch_cuda_kernel(dev_field, GRID_SIZE);
-        checkCUDA(cudaMemcpy(field, dev_field, GRID_SIZE * GRID_SIZE * sizeof(float), cudaMemcpyDeviceToHost));
+        // Inject density at mouse
+        double mx, my;
+        get_mouse_pos(mx, my);
+        if (is_mouse_down()) {
+            int i = int(mx / WIN_WIDTH * N);
+            int j = int((WIN_HEIGHT - my) / WIN_HEIGHT * N);
+            if (i >= 1 && i < N - 1 && j >= 1 && j < N - 1)
+                source[j * N + i] = 100.0f;
+        }
 
-        drawField();
+        checkCUDA(cudaMemcpy(dev_source, source, N * N * sizeof(float), cudaMemcpyHostToDevice));
+        add_source_cuda(dev_density, dev_source, 0.1f, N);
+        checkCUDA(cudaMemcpy(density, dev_density, N * N * sizeof(float), cudaMemcpyDeviceToHost));
+
+        draw_density();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete[] field;
-    cudaFree(dev_field);
+    delete[] density;
+    delete[] source;
+    cudaFree(dev_density);
+    cudaFree(dev_source);
     glfwTerminate();
     return 0;
 }
