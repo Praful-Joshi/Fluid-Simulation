@@ -10,10 +10,11 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 
 include_directories(
-    ${OPENGL_INCLUDE_DIRS}/include
+    ${OPENGL_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}
+    ./include
 )
 
 add_executable(FluidSim
