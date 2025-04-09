@@ -7,6 +7,7 @@
 #include <thread>
 #include <tuple>
 #include <sstream>
+#include <algorithm>
 
 #include <cassert>
 
@@ -1482,7 +1483,7 @@ void fluidsolver_3::dissipate(grid3_scalar<float> *grid, float disp_mult, float 
 
 void fluidsolver_3::dissipate(grid3_vector<vec3<float>> *grid, float disp_mult, float dt)
 {
-	disp_mult = clamp(disp_mult, 0.0f, 1.0f);
+	disp_mult = std::clamp(disp_mult, 0.0f, 1.0f);
 	#pragma omp parallel for
 	for (int i = 1; i <= N_dim; i++)
 	{
