@@ -6,7 +6,7 @@
 #include "renderobject3d.h" 
 
 // Vendor Headers - 
-#include <GLFW\glfw3.h>
+#include <GLFW/glfw3.h>
 
 // Std Headers 
 #include <functional> 

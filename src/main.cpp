@@ -20,7 +20,7 @@
 // Vendor Headers
 #define GLEW_STATIC 
 #include <GL/glew.h>
-#include <GLFW\glfw3.h>
+#include <GLFW/glfw3.h>
 
 // Project Headers 
 #include "vec3d.h"
