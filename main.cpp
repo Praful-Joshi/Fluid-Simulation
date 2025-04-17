@@ -12,6 +12,7 @@ struct Ball {
 // Settings
 const int NUM_BALLS = 2000;
 const float PARTICLE_SIZE = 0.02f; // size of each particle
+const float TANK_SIZE = 1.5f; // size of the tank
 std::vector<Ball> particles;
 
 float gravity = -0.0098f;
@@ -39,6 +40,7 @@ void initBalls() {
 
 // Update all particles
 void update(int value) {
+    
     for (auto& ball : particles) {
         ball.vy += gravity;
         ball.y += ball.vy;
@@ -54,6 +56,30 @@ void update(int value) {
                 ball.y = randFloat(2.0f, 4.0f); // start higher now
                 ball.vy = randFloat(-0.05f, -0.15f); // small downward initial speed
             }
+        }
+
+        // Left wall (x negative side)
+        if (ball.x <= -TANK_SIZE + ball.radius) {
+            ball.x = -TANK_SIZE + ball.radius;
+            ball.x += 0.01f; // push slightly inside
+        }
+
+        // Right wall (x positive side)
+        if (ball.x >= TANK_SIZE - ball.radius) {
+            ball.x = TANK_SIZE - ball.radius;
+            ball.x -= 0.01f;
+        }
+
+        // Front wall (z negative side)
+        if (ball.z <= -TANK_SIZE + ball.radius) {
+            ball.z = -TANK_SIZE + ball.radius;
+            ball.z += 0.01f;
+        }
+
+        // Back wall (z positive side)
+        if (ball.z >= TANK_SIZE - ball.radius) {
+            ball.z = TANK_SIZE - ball.radius;
+            ball.z -= 0.01f;
         }
     }
 
