@@ -10,13 +10,13 @@ struct Ball {
 };
 
 // Settings
-const int NUM_BALLS = 1000;
+const int NUM_BALLS = 2000;
 const float PARTICLE_SIZE = 0.02f; // size of each particle
 std::vector<Ball> particles;
 
 float gravity = -0.0098f;
 float floorY = -1.0f;
-float bounceDamping = 0.5f;
+float bounceDamping = 0.2f;
 
 // Random float helper
 float randFloat(float min, float max) {
@@ -48,7 +48,7 @@ void update(int value) {
             ball.vy *= -bounceDamping;
 
             // If the bounce is too weak, recycle the particle
-            if (std::abs(ball.vy) < 0.05f) {
+            if (std::abs(ball.vy) < 0.02f) {
                 ball.x = randFloat(-1.5f, 1.5f);
                 ball.z = randFloat(-1.5f, 1.5f);
                 ball.y = randFloat(2.0f, 4.0f); // start higher now
